@@ -1,32 +1,6 @@
 (load "set.ss")
-
-(define-syntax record
-  (syntax-rules ()
-    [(_ (var ...) val exp ...)
-     (apply (lambda (var ...) exp ...) val)]
-    [(_ (var . var2) val exp ...)
-     (apply (lambda (var . var2) exp ...) val)]))
-
-(define-syntax record-case
-  (syntax-rules (else)
-    [(_ exp1 (key vars exp2 ...) next ... (else exp3 ...))
-     (let ((r exp1))
-       (cond [(eq? (car r) 'key)
-	      (record vars (cdr r) exp2 ...)]
-	     [else (record-case exp1 next ... (else exp3 ...))]))]
-    [(_ exp1 (else exp3 ...))
-     (begin exp3 ...)]))
-
-(define line 1)
-
-(define (debug-line s)
-  (let ((c line))
-    (set! line (+ 1 line))
-    (display c)
-    (display " : ")
-    (display s)
-    (newline)))
-
+(load "utils.ss")
+(load "env.ss")
 ;;lambda形式变换
 (define lambda-change
   (lambda (old)
@@ -40,30 +14,6 @@
 	    [else
 	     `(,(lambda-change (car old)) ,(lambda-change (cadr old)))])]
 	  [else old])))
-
-(define tags (make-eq-hashtable 32))
-
-(define Tag
-  (lambda (k v)
-    (hashtable-set! tags k v)))
-
-(define the-empty-env '())
-
-(define add-to-env
-  (lambda (k v env)
-    (cons (cons k v) env)))
-
-(define find-env
-  (lambda (k env)
-    (define (loop rest)
-      (if (null? rest)
-	  (begin (display "variable ")
-		 (display k)
-		 (display " not bound!\n"))
-	  (if (eq? (caar rest) k)
-	      (cdr (car rest))
-	      (loop (cdr rest)))))
-    (loop env)))
 
 (define make-procedure
   (lambda (var body env)
@@ -110,6 +60,7 @@
 		    x
 		    (find-env x env))])))
 
+;;对Tag定义的缩写进行替换
 (define pre-analyze
   (lambda (x)
     (cond [(pair? x)
@@ -119,7 +70,7 @@
 	      `(lambda ,(pre-analyze var) ,(pre-analyze body))]
 	    [else
 	     `(,(pre-analyze (car x)) ,(pre-analyze (cadr x)))])]
-	  [else (hashtable-ref tags x x)])))
+	  [else (find-tag x)])))
 
 (define lambda-eval
   (lambda (x)
