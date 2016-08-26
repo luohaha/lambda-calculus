@@ -32,20 +32,13 @@
 (Tag pow (lambda m (lambda n ((n (* m)) 1))))
 (Tag >= (lambda m (lambda n (zero? ((- n) m)))))
 (Tag <= (lambda m (lambda n (zero? ((- m) n)))))
-(Tag mod (Z (lambda f (lambda m (lambda n
-				  (((if ((<= n) m))
-				    (lambda x (((f ((- m) n)) n) x)))
-				   m))))))
-(Tag rec (Z (lambda f (lambda m (((if (zero? m)) 0) (lambda x ((f ((- m) 1)) x)))))))
+(Tag and (lambda m (lambda n ((m n) false))))
+(Tag or (lambda m (lambda n ((m true) n))))
+(Tag not (lambda m ((m false) true)))
+(Tag test (lambda f (lambda n (((if (zero? n)) 1) ((* n)
+						   (lambda x ((f (decrement n)) x)))))))
 
-					;(display ((mod 3) 2))
-
-(display-integer ((pow 3) 2))
-
-
-
-
-
+(display-boolean ((Z test) 0))
 
 
 
