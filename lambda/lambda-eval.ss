@@ -1,3 +1,5 @@
+(load "set.ss")
+
 (define-syntax record
   (syntax-rules ()
     [(_ (var ...) val exp ...)
@@ -25,6 +27,7 @@
     (display s)
     (newline)))
 
+;;lambda形式变换
 (define lambda-change
   (lambda (old)
     (cond [(pair? old)
@@ -70,6 +73,7 @@
   (lambda (proc val)
     (lambda-analyze (caddr proc) (add-to-env (cadr proc) val (cadddr proc)))))
 
+;;第一遍规约
 (define lambda-analyze
   (lambda (x env)
     ;(debug-line x)
@@ -84,6 +88,28 @@
 	       (execute proc val))])]
 	  [else (find-env x env)])))
 
+(define post-execute
+  (lambda (proc val bound)
+    (post-analyze (caddr proc) (add-to-env (cadr proc) val (cadddr proc)) (set-cons (cadr proc) bound))))
+
+;;后续的规约
+(define post-analyze
+  (lambda (x env bound)
+    (cond [(pair? x)
+	   (record-case
+	    x
+	    [lambda (var body)
+	      `(lambda ,var ,(post-analyze body env (set-cons var bound)))]
+	    [else (let ([proc (post-analyze (car x) env bound)]
+			[val (post-analyze (cadr x) env bound)])
+		    (if (and (pair? proc)
+			     (eq? (car proc) 'proc))
+			(post-execute proc val bound)
+			`(,proc ,val)))])]
+	  [else (if (set-member? x bound)
+		    x
+		    (find-env x env))])))
+
 (define pre-analyze
   (lambda (x)
     (cond [(pair? x)
@@ -97,12 +123,9 @@
 
 (define lambda-eval
   (lambda (x)
-    (lambda-analyze (pre-analyze x) the-empty-env)))
-
-;;打印lambda
-(define display-lambda
-  (lambda (proc)
-    (display `(lambda ,(cadr proc) ,(caddr proc)))))
+    (let ([proc (lambda-analyze (pre-analyze x) the-empty-env)])
+      (post-analyze `(lambda ,(cadr proc) ,(caddr proc))
+		    (cadddr proc) '()))))
 
 ;;将丘奇编码转化为数字
 (define to-integer
@@ -122,14 +145,13 @@
   (lambda (proc)
     (display (to-boolean proc))))
 
-
 (define analyze
   (lambda (x)
     (cond [(pair? x)
 	   (record-case
 	    x
-	    [Tag (k v) (Tag k v)]
-	    [display (v) (display-lambda (analyze v))]
+	    [Tag (k v) (Tag k (pre-analyze v))]
+	    [display (v) (display (analyze v))]
 	    [display-integer (v) (display-integer (analyze v))]
 	    [display-boolean (v) (display-boolean (analyze v))]
 	    [eval (v) (lambda-eval v)]
@@ -154,5 +176,5 @@
 	       (loop (cdr line)))))
   (loop (read-file filename)))
 
-(eval-file "example.ss")
+(eval-file "../example/example.ss")
 

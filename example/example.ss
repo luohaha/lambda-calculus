@@ -11,9 +11,19 @@
 
 ;;condition
 (Tag if (lambda x x))
+(Tag zero? (lambda x ((x (lambda y false)) true)))
 
-;;(display (pre-analyze '(((if true) 1) 2)))
+;;data structure
+(Tag cons (lambda x (lambda y (lambda f ((f x) y)))))
+(Tag car (lambda f (f (lambda x (lambda y x)))))
+(Tag cdr (lambda f (f (lambda x (lambda y y)))))
 
-(display-boolean (eval (((if false) true) false)))
+;;computer
+(Tag increment (lambda n1 (lambda p (lambda x (p ((n1 p) x))))))
+
+;(display-integer (eval (increment 2)))
+
+(display-integer (eval (((if (zero? (increment 0))) (car ((cons (increment 3)) 1))) (increment 0))))
+
 
 
