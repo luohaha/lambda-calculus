@@ -50,15 +50,16 @@
 	    x
 	    [lambda (var body)
 	      `(lambda ,var ,(post-analyze body env (set-cons var bound)))]
+	    [proc (var body env)
+		  `(lambda ,var ,(post-analyze body env (set-cons var bound)))]
 	    [else (let ([proc (post-analyze (car x) env bound)]
 			[val (post-analyze (cadr x) env bound)])
-		    (if (and (pair? proc)
-			     (eq? (car proc) 'proc))
-			(post-execute proc val bound)
-			`(,proc ,val)))])]
+		    `(,proc ,val))])]
 	  [else (if (set-member? x bound)
 		    x
-		    (find-env x env))])))
+		    (post-analyze (find-env x env)
+				  env
+				  bound))])))
 
 ;;对Tag定义的缩写进行替换
 (define pre-analyze
@@ -85,7 +86,8 @@
 
 (define display-integer
   (lambda (proc)
-    (display (to-integer proc))))
+    (display (to-integer proc))
+    (newline)))
 
 ;;将丘奇编码转化为boolean
 (define to-boolean
@@ -94,7 +96,8 @@
 
 (define display-boolean
   (lambda (proc)
-    (display (to-boolean proc))))
+    (display (to-boolean proc))
+    (newline)))
 
 (define analyze
   (lambda (x)
@@ -102,12 +105,11 @@
 	   (record-case
 	    x
 	    [Tag (k v) (Tag k (pre-analyze v))]
-	    [display (v) (display (analyze v))]
+	    [display (v) (display (analyze v)) (newline)]
 	    [display-integer (v) (display-integer (analyze v))]
 	    [display-boolean (v) (display-boolean (analyze v))]
-	    [eval (v) (lambda-eval v)]
-	    [else (display "syntax error!\n")])]
-	  [else (display "syntax error!\n")])))
+	    [else (lambda-eval x)])]
+	  [else (lambda-eval x)])))
 
 ;;读取文件
 (define (read-file filename)

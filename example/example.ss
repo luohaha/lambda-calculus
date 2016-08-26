@@ -1,4 +1,8 @@
 
+;;Y combination
+(Tag Y (lambda f ((lambda x (f (x x))) (lambda x (f (x x))))))
+(Tag Z (lambda f ((lambda x (f (lambda y ((x x) y))))
+		  (lambda x (f (lambda y ((x x) y)))))))
 ;;integer
 (Tag 0 (lambda p (lambda x x)))
 (Tag 1 (lambda p (lambda x (p x))))
@@ -20,10 +24,28 @@
 
 ;;computer
 (Tag increment (lambda n1 (lambda p (lambda x (p ((n1 p) x))))))
+(Tag slide (lambda p ((cons (cdr p)) (increment (cdr p)))))
+(Tag decrement (lambda n (car ((n slide) ((cons 0) 0)))))
+(Tag + (lambda m (lambda n ((n increment) m))))
+(Tag - (lambda m (lambda n ((n decrement) m))))
+(Tag * (lambda m (lambda n ((n (+ m)) 0))))
+(Tag pow (lambda m (lambda n ((n (* m)) 1))))
+(Tag >= (lambda m (lambda n (zero? ((- n) m)))))
+(Tag <= (lambda m (lambda n (zero? ((- m) n)))))
+(Tag mod (Z (lambda f (lambda m (lambda n
+				  (((if ((<= n) m))
+				    (lambda x (((f ((- m) n)) n) x)))
+				   m))))))
+(Tag rec (Z (lambda f (lambda m (((if (zero? m)) 0) (lambda x ((f ((- m) 1)) x)))))))
 
-;(display-integer (eval (increment 2)))
+					;(display ((mod 3) 2))
 
-(display-integer (eval (((if (zero? (increment 0))) (car ((cons (increment 3)) 1))) (increment 0))))
+(display-integer ((pow 3) 2))
+
+
+
+
+
 
 
 
