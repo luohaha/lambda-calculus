@@ -35,10 +35,12 @@
 (Tag and (lambda m (lambda n ((m n) false))))
 (Tag or (lambda m (lambda n ((m true) n))))
 (Tag not (lambda m ((m false) true)))
-(Tag test (lambda f (lambda n (((if (zero? n)) 1) ((* n)
-						   (lambda x ((f (decrement n)) x)))))))
+(Tag test (lambda f (lambda n (((if (zero? n)) 0) (lambda x ((f (decrement n)) x))))))
+(Tag mod (Z (lambda f (lambda m (lambda n (((if ((<= n) m))
+					    (lambda x (((f ((- m) n)) n) x)))
+					   m))))))
 
-(display-boolean ((Z test) 0))
+(display-integer ((* 3) 2))
 
 
 
