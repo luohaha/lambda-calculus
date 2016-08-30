@@ -26,7 +26,7 @@
 (Tag increment (lambda n1 (lambda p (lambda x (p ((n1 p) x))))))
 (Tag slide (lambda p ((cons (cdr p)) (increment (cdr p)))))
 (Tag decrement (lambda n (car ((n slide) ((cons 0) 0)))))
-(Tag + (lambda m (lambda n ((n increment) m))))
+(Tag + (lambda x (lambda y ((y increment) x))))
 (Tag - (lambda m (lambda n ((n decrement) m))))
 (Tag * (lambda m (lambda n ((n (+ m)) 0))))
 (Tag pow (lambda m (lambda n ((n (* m)) 1))))
@@ -40,7 +40,7 @@
 					    (lambda x (((f ((- m) n)) n) x)))
 					   m))))))
 
-(display-integer ((* 3) 2))
+(display ((+ 3) 3))
 
 
 

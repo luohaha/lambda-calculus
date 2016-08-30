@@ -30,7 +30,22 @@
 
 (define lambda-eval
   (lambda (x)
-    (beta-analyze (pre-analyze x))))
+    (beta-analyze-loop (pre-analyze x))))
+
+(define beta-analyze-loop
+  (lambda (exp)
+    (debug-line exp)
+    (cond [(pair? exp)
+	   (record-case
+	    exp
+	    [lambda (var body) `(lambda ,var ,(beta-analyze-loop body))]
+	    [else (let ([left (beta-analyze (car exp))]
+			[right (beta-analyze (cadr exp))])
+		    (if (and (pair? left)
+			     (eq? 'lambda (car left)))
+			(beta-analyze-loop (beta-analyze `(,left ,right)))
+			`(,left ,(beta-analyze-loop right))))])]
+	  [else exp])))
 
 (define deep-analyze
   (lambda (exp bound exchan)
@@ -51,10 +66,11 @@
 			(begin (display "lambda syntax error ")
 			       (display exchan)
 			       (newline)
-			       '())))])))
+			       exp)))])))
 ;;beta规约
 (define beta-analyze
   (lambda (exp)
+    ;(debug-line exp)
     (cond [(pair? exp)
 	   (record-case
 	    exp
