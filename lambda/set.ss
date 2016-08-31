@@ -33,4 +33,5 @@
 	    (cons (car s1) (set-intersect (cdr s1) s2))
 	    (set-intersect (cdr s1) s2)))))
 
-
+;;alpha 规约中的变量集合
+(define alpha-set '())
