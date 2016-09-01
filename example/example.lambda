@@ -20,7 +20,7 @@
 (Tag car (lambda f (f (lambda x (lambda y x)))))
 (Tag cdr (lambda f (f (lambda x (lambda y y)))))
 
-;;computer
+;;operator
 (Tag increment (lambda n (lambda p (lambda x (p ((n p) x))))))
 (Tag decrement (lambda n (lambda f (lambda x (((n (lambda g (lambda h (h (g f))))) (lambda u x)) (lambda u u))))))
 (Tag + (lambda m (lambda n (lambda f (lambda x ((m f) ((n f) x)))))))
@@ -38,11 +38,11 @@
 					m)))))
 (Tag add-list (lambda f (lambda n (((if (zero? n)) 0) ((+ (f (decrement n))) n)))))
 
-(display-integer ((pow 3) (cdr ((cons 2) 3))))
+(display ((pow 3) (cdr ((cons 2) 3))))
 
 (display-integer ((add-list (Y add-list)) (increment 3)))
 
-(display-integer (((mod (Y mod)) (increment (increment 3))) 3))
+(display (((mod (Y mod)) (increment (increment 3))) 3))
 
 (display-boolean (((if ((and true) true)) ((or false) false)) true))
 
