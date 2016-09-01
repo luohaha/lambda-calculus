@@ -17,6 +17,9 @@ cd lambda/
 <expression> ::= (lambda <id> <expression>)
 <expression> ::= (<expression> <expression>)
 ```
+## 概念介绍
+
+更多关于lambda演算的解释在[这里](https://zh.wikipedia.org/wiki/Λ演算)可以看到。
 
 ## 辅助函数
 
