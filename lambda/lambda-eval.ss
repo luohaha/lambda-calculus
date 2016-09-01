@@ -28,9 +28,16 @@
 	     `(,(pre-analyze (car x)) ,(pre-analyze (cadr x)))])]
 	  [else (find-tag x)])))
 
+;;保存上一次的结果，用于判断计算是否结束
+(define prev-ret '())
+
 (define lambda-eval
   (lambda (x)
-    (beta-analyze (alpha-analyze (pre-analyze x)))))
+    (let loop ([ret (beta-analyze (begin-alpha (pre-analyze x)))])
+      (if (equal? ret prev-ret)
+	  ret
+	  (begin (set! prev-ret ret)
+		 (loop (beta-analyze (begin-alpha ret))))))))
 
 ;;beta规约中的替换
 (define beta-replace
@@ -54,15 +61,20 @@
 	    [lambda (var body) `(lambda ,var ,(beta-analyze body))]
 	    [else
 	     (let ([left (beta-analyze (car exp))]
-		   [right (cadr exp)])
+		   [right (beta-analyze (cadr exp))])
 	       (if (and (pair? left)
 			(eq? 'lambda (car left)))
-		   (beta-analyze (beta-replace (caddr left) (cadr left) right))
-		   `(,left ,(beta-analyze right))))])]
+		   (beta-replace (caddr left) (cadr left) right)
+		   `(,left ,right)))])]
 	  [else exp])))
 
+;;变量后缀
 (define alpha-count 0)
 
+;;alpha 规约中的变量集合
+(define alpha-set '())
+
+;;alpha变换中的变量替换
 (define alpha-replace
   (lambda (exp new old)
     (cond [(pair? exp)
@@ -78,13 +90,14 @@
 		    new
 		    exp)])))
 
+;;创建鑫的变量名称
 (define alpha-new-var
   (lambda (var)
     (set! alpha-count (+ 1 alpha-count))
     (string->symbol (string-append (symbol->string var)
 				   (number->string alpha-count)))))
 
-;;alpha规约
+;;alpha变换
 (define alpha-analyze
   (lambda (exp)
     (cond [(pair? exp)
@@ -99,6 +112,12 @@
 			 `(lambda ,var ,(alpha-analyze body))))]
 	    [else `(,(alpha-analyze (car exp)) ,(alpha-analyze (cadr exp)))])]
 	  [else exp])))
+
+(define begin-alpha
+  (lambda (exp)
+    (set! alpha-count 0)
+    (set! alpha-set '())
+    (alpha-analyze exp)))
 
 ;;将丘奇编码转化为数字
 (define to-integer
