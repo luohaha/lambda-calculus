@@ -20,22 +20,22 @@ cd lambda/
 
 ## 辅助函数
 
-```
+```scheme
 (Tag <id> <expression>)
 ```
 > id为expression的缩写。
 
-```
+```scheme
 (display <expression>)
 ```
 > 打印规约之后的结果。
 
-```
+```scheme
 (display-integer <expression>)
 ```
 > 打印规约之后结果的整数值。
 
-```
+```scheme
 (display-boolean <expression>)
 ```
 > 打印规约之后结果的布尔值。
