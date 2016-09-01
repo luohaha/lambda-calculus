@@ -169,5 +169,3 @@
 	       (loop (cdr line)))))
   (loop (read-file filename)))
 
-(eval-file "../example/example.ss")
-

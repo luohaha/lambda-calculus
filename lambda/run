@@ -1,0 +1,8 @@
+#! /usr/local/bin/scheme --script
+
+(load "lambda-eval.ss")
+
+(let ([args (command-line)])
+  (if (null? (cdr args))
+      (display "Usage : ./run [filename]\n")
+      (eval-file (cadr args))))
